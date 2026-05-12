@@ -11,6 +11,32 @@ services:
       POSTGRES_DB: flowbrand_marketing
     volumes:
       - flowbrand_marketing_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d flowbrand_marketing']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: .
+    container_name: flowbrand-marketing-api
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: flowbrand_marketing
+      # Demo only: creates schema without migrations. Use migrations + TYPEORM_SYNC=false in real prod.
+      TYPEORM_SYNC: 'true'
+      PUBLIC_URL: ${PUBLIC_URL:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
 
 volumes:
   flowbrand_marketing_pgdata:
