@@ -10,9 +10,21 @@ export function setupSwagger(app: INestApplication): void {
   const publicUrl = process.env.PUBLIC_URL?.replace(/\/$/, '');
 
   const builder = new DocumentBuilder()
-    .setTitle('Flowbrand Marketing Service')
-    .setDescription('HTTP API (NestJS, TypeORM, PostgreSQL).')
-    .setVersion('1.0');
+    .setTitle('SEIL API')
+    .setDescription(
+      'SEIL — guided marketing strategy API (NestJS, PostgreSQL). Base path /api/v1/',
+    )
+    .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'Authorization',
+        in: 'header',
+      },
+      'access-token',
+    );
 
   if (publicUrl) {
     builder.addServer(publicUrl, 'Deployed');

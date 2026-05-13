@@ -14,6 +14,9 @@ export class User {
   @Column({ unique: true })
   email!: string;
 
+  @Column({ name: 'password_hash', type: 'varchar', length: 255, select: false })
+  passwordHash!: string;
+
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt!: Date;
 

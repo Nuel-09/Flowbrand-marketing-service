@@ -2,8 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import { applyAppConfiguration } from './../src/app.bootstrap';
-import { AppModule } from './../src/app.module';
+import { applyAppConfiguration } from '../../../src/app.bootstrap';
+import { AppModule } from '../../../src/app.module';
 
 describe('App (e2e)', () => {
   let app: INestApplication<App>;
@@ -18,16 +18,16 @@ describe('App (e2e)', () => {
     await app.init();
   });
 
-  it('GET /api', () => {
+  it('GET /api/v1', () => {
     return request(app.getHttpServer())
-      .get('/api')
+      .get('/api/v1')
       .expect(200)
-      .expect('Hello World!');
+      .expect('SEIL marketing strategy API — ok');
   });
 
-  it('GET /api/health', () => {
+  it('GET /api/v1/health', () => {
     return request(app.getHttpServer())
-      .get('/api/health')
+      .get('/api/v1/health')
       .expect(200)
       .expect((res) => {
         const body = res.body as { status?: string; timestamp?: string };
@@ -37,6 +37,8 @@ describe('App (e2e)', () => {
   });
 
   afterEach(async () => {
-    await app.close();
+    if (app) {
+      await app.close();
+    }
   });
 });

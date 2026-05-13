@@ -4,6 +4,7 @@ node_modules/
 # Build
 dist/
 build/
+*.tsbuildinfo
 
 # Environment (never commit secrets)
 .env
@@ -30,3 +31,6 @@ Thumbs.db
 # Temp
 *.tmp
 .cache/
+
+# Local object storage (SEIL uploads)
+var/

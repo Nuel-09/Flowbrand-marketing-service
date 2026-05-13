@@ -13,4 +13,23 @@ export class UsersService {
   findAll(): Promise<User[]> {
     return this.usersRepository.find({ order: { createdAt: 'DESC' } });
   }
+
+  findByEmail(email: string): Promise<User | null> {
+    return this.usersRepository.findOne({
+      where: { email: email.toLowerCase().trim() },
+      select: ['id', 'email', 'passwordHash', 'createdAt', 'updatedAt'],
+    });
+  }
+
+  findById(id: string): Promise<User | null> {
+    return this.usersRepository.findOne({ where: { id } });
+  }
+
+  async create(email: string, passwordHash: string): Promise<User> {
+    const user = this.usersRepository.create({
+      email: email.toLowerCase().trim(),
+      passwordHash,
+    });
+    return this.usersRepository.save(user);
+  }
 }

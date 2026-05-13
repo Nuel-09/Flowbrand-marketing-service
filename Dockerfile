@@ -1,10 +1,12 @@
-# Build and run the API (Swagger UI at /api/docs when the app is up).
+# Build and run the API (Swagger UI at /api/v1/docs when the app is up).
 FROM node:22-alpine AS builder
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
-RUN npm run build
+# Stale incremental info (often copied from host) can make tsc emit no .js files.
+RUN rm -f tsconfig.build.tsbuildinfo tsconfig.tsbuildinfo
+RUN npm run build && test -f dist/main.js || (echo "Expected dist/main.js after build; got:" && ls -laR dist && exit 1)
 
 FROM node:22-alpine AS production
 WORKDIR /app

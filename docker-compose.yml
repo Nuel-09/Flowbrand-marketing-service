@@ -34,6 +34,9 @@ services:
       # Demo only: creates schema without migrations. Use migrations + TYPEORM_SYNC=false in real prod.
       TYPEORM_SYNC: 'true'
       PUBLIC_URL: ${PUBLIC_URL:-}
+      JWT_SECRET: ${JWT_SECRET:-dev-only-jwt-secret-change-me-min-32-chars!!}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-haiku-4-5}
     depends_on:
       postgres:
         condition: service_healthy
