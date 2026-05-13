@@ -25,6 +25,8 @@
 
 **SEIL (backend service)** — NestJS API for the SEIL guided marketing strategy product: **PostgreSQL** + **TypeORM**, **`/api/v1`** API prefix, **JWT auth**, document upload (PDF/DOCX, local disk MVP) with synchronous text extraction, **Anthropic Claude** funnel generation (four fixed stages), and progress polling.
 
+**System design (as-built):** [docs/SYSTEM_DESIGN.md](./docs/SYSTEM_DESIGN.md)
+
 ### Stack
 
 - NestJS 11, TypeORM, `pg`
@@ -35,16 +37,16 @@
 
 ### HTTP routes (initial)
 
-| Method | Path | Notes |
-|--------|------|--------|
-| GET | `/api/v1` | API hello |
-| GET | `/api/v1/health` | Liveness (no DB query) |
-| POST | `/api/v1/auth/register` | Email + password → JWT |
-| POST | `/api/v1/auth/login` | JWT |
-| GET | `/api/v1/users` | List users (**Bearer JWT** required) |
-| POST | `/api/v1/funnels/upload` | Multipart `file` (PDF/DOCX, ≤ 5 MiB), **Bearer JWT** |
-| GET | `/api/v1/funnels/upload/progress/:uploadId` | Upload status for owner, **Bearer JWT** |
-| POST | `/api/v1/funnels/generate-from-upload` | JSON `{ "uploadId" }` — **JWT**; upload must be `ready`; needs **`ANTHROPIC_API_KEY`**; saves `funnel_generations` |
+| Method | Path                                        | Notes                                                                                                              |
+| ------ | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| GET    | `/api/v1`                                   | API hello                                                                                                          |
+| GET    | `/api/v1/health`                            | Liveness (no DB query)                                                                                             |
+| POST   | `/api/v1/auth/register`                     | Email + password → JWT                                                                                             |
+| POST   | `/api/v1/auth/login`                        | JWT                                                                                                                |
+| GET    | `/api/v1/users`                             | List users (**Bearer JWT** required)                                                                               |
+| POST   | `/api/v1/funnels/upload`                    | Multipart `file` (PDF/DOCX, ≤ 5 MiB), **Bearer JWT**                                                               |
+| GET    | `/api/v1/funnels/upload/progress/:uploadId` | Upload status for owner, **Bearer JWT**                                                                            |
+| POST   | `/api/v1/funnels/generate-from-upload`      | JSON `{ "uploadId" }` — **JWT**; upload must be `ready`; needs **`ANTHROPIC_API_KEY`**; saves `funnel_generations` |
 
 ### Anthropic Claude (funnel generation)
 
@@ -75,18 +77,18 @@ When you run broader **archived** e2e specs from `archive/tests/`, they need a r
 
 Set variables in the **Render dashboard → your Web Service → Environment** (never commit secrets to Git). Link a **Render PostgreSQL** instance to the web service so **`DATABASE_URL`** is injected automatically, or paste the **Internal Database URL** as `DATABASE_URL` (single line; `DB_URL` is also accepted).
 
-| Variable | Required | Purpose |
-|----------|----------|---------|
-| **`DATABASE_URL`** | Yes (typical) | Postgres connection string from linked DB or manual paste. If unset, use **`DB_HOST`**, **`DB_PORT`**, **`DB_USERNAME`**, **`DB_PASSWORD`**, **`DB_NAME`** (or **`DB_DATABASE`**) instead. |
-| **`JWT_SECRET`** | Yes | Signs JWT access tokens. Use a long random value (32+ characters); keep it stable across deploys unless you want all clients to re-authenticate. |
-| **`ANTHROPIC_API_KEY`** | For funnel AI | Required for `POST /api/v1/funnels/generate-from-upload`. Without it the API returns **503** `AI_NOT_CONFIGURED`. |
-| **`ANTHROPIC_MODEL`** | No | Claude model id; defaults to **`claude-haiku-4-5`** if unset. |
-| **`NODE_ENV`** | Recommended | Set to **`production`**. |
-| **`PORT`** | Usually automatic | Render sets this; the app listens on `process.env.PORT`. |
-| **`PUBLIC_URL`** | Recommended | Public base URL of the API, **no trailing slash** (e.g. `https://your-service.onrender.com`). Improves Swagger “Try it out” server URLs. |
-| **`TYPEORM_SYNC`** | Recommended | Use **`false`** in production and apply schema with **migrations**. Only use `true` for throwaway demos. |
-| **`SWAGGER_ENABLED`** | No | Defaults to on; set to **`false`** to disable `/api/v1/docs`. |
-| **`UPLOAD_STORAGE_ROOT`** | No | Directory for uploaded PDFs/DOCX. Defaults to **`./var/uploads`** under the app. On Render, the filesystem is **ephemeral** unless you attach a **persistent disk** (uploads can be lost on redeploy); plan for object storage for durable files later. |
+| Variable                  | Required          | Purpose                                                                                                                                                                                                                                                 |
+| ------------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`DATABASE_URL`**        | Yes (typical)     | Postgres connection string from linked DB or manual paste. If unset, use **`DB_HOST`**, **`DB_PORT`**, **`DB_USERNAME`**, **`DB_PASSWORD`**, **`DB_NAME`** (or **`DB_DATABASE`**) instead.                                                              |
+| **`JWT_SECRET`**          | Yes               | Signs JWT access tokens. Use a long random value (32+ characters); keep it stable across deploys unless you want all clients to re-authenticate.                                                                                                        |
+| **`ANTHROPIC_API_KEY`**   | For funnel AI     | Required for `POST /api/v1/funnels/generate-from-upload`. Without it the API returns **503** `AI_NOT_CONFIGURED`.                                                                                                                                       |
+| **`ANTHROPIC_MODEL`**     | No                | Claude model id; defaults to **`claude-haiku-4-5`** if unset.                                                                                                                                                                                           |
+| **`NODE_ENV`**            | Recommended       | Set to **`production`**.                                                                                                                                                                                                                                |
+| **`PORT`**                | Usually automatic | Render sets this; the app listens on `process.env.PORT`.                                                                                                                                                                                                |
+| **`PUBLIC_URL`**          | Recommended       | Public base URL of the API, **no trailing slash** (e.g. `https://your-service.onrender.com`). Improves Swagger “Try it out” server URLs.                                                                                                                |
+| **`TYPEORM_SYNC`**        | Recommended       | Use **`false`** in production and apply schema with **migrations**. Only use `true` for throwaway demos.                                                                                                                                                |
+| **`SWAGGER_ENABLED`**     | No                | Defaults to on; set to **`false`** to disable `/api/v1/docs`.                                                                                                                                                                                           |
+| **`UPLOAD_STORAGE_ROOT`** | No                | Directory for uploaded PDFs/DOCX. Defaults to **`./var/uploads`** under the app. On Render, the filesystem is **ephemeral** unless you attach a **persistent disk** (uploads can be lost on redeploy); plan for object storage for durable files later. |
 
 **Deploy:** Connect the GitHub repo in Render, enable **Auto-Deploy** for your branch, use this repo’s **`Dockerfile`** (or Node build + `npm run start:prod` with the same env vars). After each push, Render rebuilds and deploys; you do not need to open the Postgres service for routine deploys if the database is already linked.
 
